@@ -254,7 +254,7 @@ def rotate_translate_scale(
             prediction.conf,
             conf_thresh,
         )
-        min_dim = _estimate_min_building_dimension(bldg_points)
+        min_dim = _estimate_min_building_dimension(bldg_points, method="bbox")
         bldg_center = np.mean(bldg_points, axis=0)
         # logger.info(f"{len(bldg_points)=}")
         # logger.info(f"{min_dim=}")
