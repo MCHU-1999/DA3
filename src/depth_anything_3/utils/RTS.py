@@ -31,27 +31,31 @@ def _load_binary_masks(mask_paths: list[str], target_shape: tuple[int, int, int]
     return masks
 
 
-def _estimate_min_building_dimension(points: np.ndarray, method: str = "pca") -> float | None:
-    """Estimate the smallest building dimension from points via PCA or axis-aligned bbox."""
+def _estimate_building_diagonal(
+        points: np.ndarray,
+        low_pct: float = 3.0,
+        high_pct: float = 97.0,
+    ) -> float | None:
+    """Estimate building extent diagonal using percentile-robust PCA projection."""
     if points.shape[0] < 3:
         return None
 
-    if method == "bbox":
-        extents = np.ptp(points, axis=0)
-        min_dim = float(np.min(extents))
-    elif method == "pca":
-        center = np.mean(points, axis=0)
-        X = points - center
-        _, _, vt = np.linalg.svd(X, full_matrices=False)
-        proj = X @ vt.T
-        extents = np.ptp(proj, axis=0)
-        min_dim = float(np.min(extents))
-    else:
-        raise ValueError(f"Unknown dimension method: {method}. Use 'pca' or 'bbox'.")
+    center = np.mean(points, axis=0)
+    X = points - center
+    _, _, vt = np.linalg.svd(X, full_matrices=False)
+    projected = X @ vt.T
 
-    if not np.isfinite(min_dim) or min_dim <= 1e-8:
+    lo = np.percentile(projected, low_pct, axis=0)
+    hi = np.percentile(projected, high_pct, axis=0)
+    extents = hi - lo
+    
+    if not np.all(np.isfinite(extents)) or np.any(extents <= 1e-12):
         return None
-    return min_dim
+
+    diag = float(np.linalg.norm(extents))
+    if not np.isfinite(diag) or diag <= 1e-12:
+        return None
+    return diag
 
 
 def _rotation_matrix_from_vectors(src: np.ndarray, dst: np.ndarray) -> np.ndarray:
@@ -227,7 +231,7 @@ def rotate_translate_scale(
     conf_thresh_percentile: float = 40.0,
     bldg_mask_paths: list[str] | None = None,
     gnd_mask_paths: list[str] | None = None,
-    target_min_bldg_dim_m: float = 12.0,
+    target_min_bldg_diag_m: float = 20.0,
     rotate_to_ground: bool = True,
     world_up_axis: tuple[float, float, float] = (0.0, 0.0, 1.0),
 ):
@@ -254,14 +258,11 @@ def rotate_translate_scale(
             prediction.conf,
             conf_thresh,
         )
-        min_dim = _estimate_min_building_dimension(bldg_points, method="bbox")
+        diag = _estimate_building_diagonal(bldg_points, method="bbox")
         bldg_center = np.mean(bldg_points, axis=0)
-        # logger.info(f"{len(bldg_points)=}")
-        # logger.info(f"{min_dim=}")
-        # logger.info(f"{bldg_center=}")
         
-        if min_dim is not None:
-            scale = float(target_min_bldg_dim_m / min_dim)
+        if diag is not None:
+            scale = float(target_min_bldg_diag_m / diag)
             if np.isfinite(scale) and scale > 0:
                 prediction.extrinsics = apply_umeyama_alignment_to_ext(
                     np.eye(3, dtype=np.float64),
