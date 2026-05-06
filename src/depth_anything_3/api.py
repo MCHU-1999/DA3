@@ -232,7 +232,7 @@ class DepthAnything3(nn.Module, PyTorchModelHubMixin):
                 conf_thresh_percentile,
                 bldg_mask_paths,
                 gnd_mask_paths,
-                target_min_bldg_dim_m=12,
+                target_min_bldg_diag_m=12,
                 world_up_axis=(0, 0, 1)
             )
 
