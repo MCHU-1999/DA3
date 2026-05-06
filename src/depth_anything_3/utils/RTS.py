@@ -258,7 +258,7 @@ def rotate_translate_scale(
             prediction.conf,
             conf_thresh,
         )
-        diag = _estimate_building_diagonal(bldg_points, method="bbox")
+        diag = _estimate_building_diagonal(bldg_points)
         bldg_center = np.mean(bldg_points, axis=0)
         
         if diag is not None:
