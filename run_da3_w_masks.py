@@ -136,7 +136,7 @@ if __name__ == "__main__":
         extrinsics=None,
         intrinsics=None,
         export_dir=DATA_DIR,
-        export_format="planarsplatting-colmap-bldg_pts",
+        export_format="planarsplatting-colmap",
         process_res=420,
         # process_res=840,
         process_res_method="upper_bound_resize",
@@ -149,7 +149,7 @@ if __name__ == "__main__":
         show_cameras=False,
         # show_cameras=True,
         conf_thresh_percentile=40,
-        num_max_points=100000,
+        # num_max_points=100000,
         bldg_mask_paths=dataset.bldg_mask_paths,
         gnd_mask_paths=dataset.gnd_mask_paths
     )
