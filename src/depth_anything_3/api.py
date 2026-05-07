@@ -244,7 +244,6 @@ class DepthAnything3(nn.Module, PyTorchModelHubMixin):
 
         # Export if requested
         if export_dir is not None:
-
             if "gs" in export_format:
                 if infer_gs and "gs_video" not in export_format:
                     export_format = f"{export_format}-gs_video"
@@ -287,6 +286,17 @@ class DepthAnything3(nn.Module, PyTorchModelHubMixin):
                         "image_paths": image,
                         "conf_thresh_percentile": conf_thresh_percentile,
                         "process_res_method": process_res_method
+                    }
+                )
+            # Add bldg_pts export parameters
+            if "bldg_pts" in export_format:
+                if "bldg_pts" not in export_kwargs:
+                    export_kwargs["bldg_pts"] = {}
+                export_kwargs["bldg_pts"].update(
+                    {
+                        "conf_thresh_percentile": conf_thresh_percentile,
+                        "num_max_points": num_max_points,
+                        "bldg_mask_paths": bldg_mask_paths,
                     }
                 )
             self._export_results(prediction, export_format, export_dir, **export_kwargs)
