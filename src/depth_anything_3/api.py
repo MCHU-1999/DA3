@@ -156,7 +156,7 @@ class DepthAnything3(nn.Module, PyTorchModelHubMixin):
         gnd_mask_paths: list[str] | None = None,
         # GLB export parameters
         conf_thresh_percentile: float = 40.0,
-        num_max_points: int = 1_000_000,
+        num_max_points: int = 100_000,
         show_cameras: bool = True,
         # Feat_vis export parameters
         feat_vis_fps: int = 15,
@@ -285,6 +285,7 @@ class DepthAnything3(nn.Module, PyTorchModelHubMixin):
                     {
                         "image_paths": image,
                         "conf_thresh_percentile": conf_thresh_percentile,
+                        "num_max_points": num_max_points,
                         "process_res_method": process_res_method
                     }
                 )

@@ -116,8 +116,6 @@ if __name__ == "__main__":
         # intrinsics=None,
         export_dir=DATA_DIR,
         export_format="planarsplatting-colmap",
-        # export_format="planarsplatting-colmap-mesh",
-        # export_format="planarsplatting-colmap-glb",
         process_res=420,
         # process_res=840,
         process_res_method="upper_bound_resize",
@@ -128,6 +126,5 @@ if __name__ == "__main__":
             }
         },
         show_cameras=False,
-        # show_cameras=True,
         conf_thresh_percentile=40
     )

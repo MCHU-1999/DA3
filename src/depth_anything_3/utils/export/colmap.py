@@ -29,7 +29,7 @@ def export_to_colmap(
     prediction: Prediction,
     export_dir: str,
     image_paths: list[str],
-    num_max_points: int = 100000,
+    num_max_points: int = 100_000,
     conf_thresh_percentile: float = 40.0,
     process_res_method: str = "upper_bound_resize",
 ) -> None:
