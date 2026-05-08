@@ -7,8 +7,6 @@ import argparse
 
 from typing import NamedTuple, List, Dict
 
-def print_err(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
 
 class ColmapDataset(NamedTuple):
     extrinsics_list: np.ndarray     # (N, 4, 4)
@@ -77,10 +75,6 @@ def read_colmap_dataset(data_dir):
         rt[:3,:3] = r
         rt[:3, 3] = t
         
-        # Before (wrong):
-        # c2w = np.linalg.inv(rt).astype(np.float32)
-        # extrinsics_list.append(c2w)
-        # After (correct):
         extrinsics_list.append(rt.astype(np.float32))  # rt is already w2c
 
         intrinsics_list.append(intrinsic)
@@ -137,14 +131,3 @@ if __name__ == "__main__":
         # show_cameras=True,
         conf_thresh_percentile=40
     )
-
-    # prediction.processed_images : [N, H, W, 3] uint8   array
-    print_err("processed_images.shape: ", prediction.processed_images.shape)
-    # prediction.depth            : [N, H, W]    float32 array
-    print_err("depth.shape: ", prediction.depth.shape)  
-    # prediction.conf             : [N, H, W]    float32 array
-    print_err("conf.shape: ", prediction.conf.shape)  
-    # prediction.extrinsics       : [N, 3, 4]    float32 array # opencv w2c or colmap format
-    print_err("extrinsics.shape: ", prediction.extrinsics.shape)
-    # prediction.intrinsics       : [N, 3, 3]    float32 array
-    print_err("intrinsics.shape: ", prediction.intrinsics.shape)

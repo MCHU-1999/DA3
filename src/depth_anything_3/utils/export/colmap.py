@@ -29,6 +29,7 @@ def export_to_colmap(
     prediction: Prediction,
     export_dir: str,
     image_paths: list[str],
+    num_max_points: int = 100000,
     conf_thresh_percentile: float = 40.0,
     process_res_method: str = "upper_bound_resize",
 ) -> None:
@@ -42,12 +43,19 @@ def export_to_colmap(
         prediction.conf,
         conf_thresh,
     )
-    num_points = len(points)
-    logger.info(f"Exporting to COLMAP with {num_points} points")
     num_frames = len(prediction.processed_images)
     h, w = prediction.processed_images.shape[1:3]
     points_xyf = _create_xyf(num_frames, h, w)
     points_xyf = points_xyf[prediction.conf >= conf_thresh]
+
+    if len(points) > num_max_points:
+        idx = np.random.choice(len(points), num_max_points, replace=False)
+        points = points[idx]
+        colors = colors[idx]
+        points_xyf = points_xyf[idx]
+
+    num_points = len(points)
+    logger.info(f"Exporting to COLMAP with {num_points} points")
 
     # 2. Set Reconstruction
     reconstruction = pycolmap.Reconstruction()
